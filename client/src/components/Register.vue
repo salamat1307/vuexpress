@@ -1,26 +1,31 @@
 <template>
-  <div>    
-    <h1>Register</h1>
+   <v-layout column>
+        <v-flex xs6 offset-xs3>
+            <div class="white elevation-2">                
+                <v-toolbar flat dense class="cyan" dark>
+                    <v-toolbar-title>Register</v-toolbar-title>
+                </v-toolbar>
+                <form name="tab-tracker-form" autocomplete="off">
+                    <div class="pl-4 pr-4 pt-2 pb-2">                    
+                        <v-text-field     
+                            type="email"                   
+                            label="Email addess"
+                            v-model="email"
+                        ></v-text-field>
 
-    <input 
-        type="email"
-        name="email" 
-        v-model="email"
-        placeholder="Your Email">
+                        <v-text-field  
+                            type="password"                      
+                            label="Your password"
+                            v-model="password"
+                        ></v-text-field>                     
+                        <div class="error" v-html="error" />  
+                    <v-btn class="cyan" dark @click="register">Register</v-btn>
+                    </div>              
+                </form>    
+            </div>
+        </v-flex>
+   </v-layout> 
 
-    <br>
-
-    <input 
-        type="password"
-        v-model="password"
-        name="password"
-        placeholder="Your password" 
-      >  
-    <br>
-
-    <button @click="register">Register</button>
-
-  </div>
 </template>
 
 <script>
@@ -29,19 +34,24 @@
         data () {
             return {
                 email: '',
-                password: ''
+                password: '',
+                error: null
             }
         },
 
 
         methods: {
             async register() {
-                const response = await AuthenticationService.register({
-                    email: this.email,
-                    password: this.password
-                })
-
-                console.log(response.data);
+                try {
+                    const response = await AuthenticationService.register({
+                        email: this.email,
+                        password: this.password
+                    })   
+                    this.$store.dispatch('setToken', response.data.token)
+                    this.$store.dispatch('setUser', response.data.user)    
+                } catch (error) {
+                    this.error = error.response.data.error    
+                }
             }
         },            
 
@@ -50,5 +60,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+    .error {
+        color: red;
+    }
 </style>
